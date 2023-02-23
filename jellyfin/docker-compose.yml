@@ -1,0 +1,32 @@
+networks:
+  jellynet:
+    external: true
+
+services:
+  jellyfin:
+    container_name: jellyfin
+    image: jellyfin/jellyfin:10.8.9
+    privileged: true
+    user: 1001:1001
+    networks:
+      - jellynet
+    volumes:
+      - /data/jellyfin/cache:/cache
+      - /data/jellyfin/config:/config
+      - /data/nfs/media:/media
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri/card0:/dev/dri/card0
+    restart: unless-stopped
+    environment:
+      JELLYFIN_PublishedServiceUrl: http://jelly.home.lan
+    ports:
+      - 80:8096
+    logging:
+      options:
+        max-size: 1m
+        max-file: 3
+    deploy:
+      resources:
+        limits:
+          memory: 4G

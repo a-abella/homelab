@@ -1,0 +1,10 @@
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+[api]
+  dashboard = true
+[providers.docker]
+  watch = true
+  network = "speak"
+[providers.file]
+  filename = "traefik_dynamic.toml"

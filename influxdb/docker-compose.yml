@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  influxdb:
+    container_name: influxdb
+    image: influxdb:2.2
+    labels:
+      - traefik.http.routers.influxdb.rule=Host(`influx.home.lan`)
+      - traefik.http.services.influxdb.loadbalancer.server.port=8086
+    volumes:
+      - '/data/influxdb/data/:/var/lib/influxdb2/'
+      - '/data/influxdb/config.yml:/etc/influxdb2/config.yml'
+    restart: unless-stopped
+

@@ -1,0 +1,30 @@
+services:
+  nfs-server:
+    container_name: nfs-server
+    image: aabel011/nfs-server:latest
+    environment:
+      NFS_EXPORT_0: "/media    (rw,all_squash,anonuid=1001,anongid=1001)"
+      NFS_VERSION: 3
+    volumes:
+      - /data/nfs/media:/media
+      - /lib/modules:/lib/modules:ro
+    cap_add:
+      - 'SYS_ADMIN'
+      - 'SYS_MODULE'
+    ports:
+      - 111:111/tcp
+      - 111:111/udp
+      - 2049:2049/tcp
+      - 2049:2049/udp
+      - 32765:32765/tcp
+      - 32765:32765/udp
+      - 32767:32767/tcp
+      - 32767:32767/udp
+    security_opt:
+      #      - 'apparmor=nfs.apparmor'
+      - 'apparmor=unconfined'
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: 1m
+        max-file: 3

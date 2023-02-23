@@ -1,0 +1,38 @@
+[
+  {
+    "gpu": "0",
+    "engine": "render/3d",
+    "metrics": {
+      "busy_percent": 0.0,
+      "sema_percent": 0.0,
+      "wait_percent": 0.0
+    }
+  },
+  {
+    "gpu": "0",
+    "engine": "blitter",
+    "metrics": {
+      "busy_percent": 0.0,
+      "sema_percent": 0.0,
+      "wait_percent": 0.0
+    }
+  },
+  {
+    "gpu": "0",
+    "engine": "video",
+    "metrics": {
+      "busy_percent": 0.0,
+      "sema_percent": 0.0,
+      "wait_percent": 0.0
+    }
+  },
+  {
+    "gpu": "0",
+    "engine": "videoenhance",
+    "metrics": {
+      "busy_percent": 0.0,
+      "sema_percent": 0.0,
+      "wait_percent": 0.0
+    }
+  }
+]

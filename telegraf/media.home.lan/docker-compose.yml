@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  telegraf:
+    container_name: telegraf
+    image: telegraf:1.22
+    user: telegraf:999
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/hostfs:ro
+      - /data/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+      - /data/telegraf/custom-metrics:/custom-metrics
+    environment:
+      HOST_MOUNT_PREFIX: /hostfs
+      HOST_PROC: /hostfs/proc
+      HOST_HOSTNAME: media.home.lan
+      INFLUX_TOKEN: "${SECRET}"
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: 1m
+        max-file: 3

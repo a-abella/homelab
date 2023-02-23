@@ -1,0 +1,24 @@
+version: "3"
+services:
+  gluetun:
+    container_name: gluetun
+    image: qmcgaw/gluetun:latest
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - VPN_SERVICE_PROVIDER=mullvad
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY="${SECRET}"
+      - WIREGUARD_ADDRESSES=10.66.175.235/32
+      - VPN_ENDPOINT_PORT=51820
+      - SERVER_CITIES=Miami FL
+      # DNS filters behaviors:
+      - DOT=on  # DNS over TLS
+      - BLOCK_MALICIOUS=off  # default on, high mem usage
+      - BLOCK_SURVEILLANCE=off
+      - BLOCK_ADS=off
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: 1m
+        max-file: 3

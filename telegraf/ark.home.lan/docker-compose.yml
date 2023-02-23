@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  telegraf:
+    container_name: telegraf
+    image: telegraf:1.22
+    labels:
+      - traefik.http.routers.telegraf-proxy.rule=Host(`telegraf-proxy.home.lan`)
+      - traefik.http.services.telegraf-proxy.loadbalancer.server.port=8186
+    user: telegraf:998
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/hostfs:ro
+      - /data/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+    environment:
+      HOST_MOUNT_PREFIX: /hostfs
+      HOST_PROC: /hostfs/proc
+      HOST_HOSTNAME: ark.home.lan
+      INFLUX_TOKEN: "${SECRET}"
+    restart: unless-stopped
+
+

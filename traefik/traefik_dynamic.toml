@@ -1,0 +1,4 @@
+[http.routers.api]
+  rule = "Host(`traefik-mon.home.lan`)"
+  entrypoints = ["web"]
+  service = "api@internal"
