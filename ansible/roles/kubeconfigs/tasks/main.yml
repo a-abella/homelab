@@ -1,0 +1,41 @@
+---
+
+- name: Controller nodes
+  when: inventory_hostname in groups.controllers
+  block:
+    - name: Copy controller kubeconfigs
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "/root/{{ item.dest }}"
+        mode: '0600'
+      loop:
+        - src: admin.kubeconfig.aes
+          dest: admin.kubeconfig
+        - src: kube-controller-manager.kubeconfig.aes
+          dest: kube-controller-manager.kubeconfig
+        - src: kube-scheduler.kubeconfig.aes
+          dest: kube-scheduler.kubeconfig
+
+- name: Worker nodes
+  when: inventory_hostname in groups.workers
+  block:
+    - name: Create kubelet and kube-proxy dirs
+      ansible.builtin.file:
+        path: "/var/lib/{{ item }}"
+        state: directory
+        mode: '0710'
+      loop:
+        - kubelet
+        - kube-proxy
+
+    - name: Copy kube-proxy kubeconfig
+      ansible.builtin.copy:
+        src: kube-proxy.kubeconfig.aes
+        dest: /var/lib/kube-proxy/kubeconfig
+        mode: '0600'
+
+    - name: Copy node kubeconfig
+      ansible.builtin.copy:
+        src: "{{ inventory_hostname_short }}.kubeconfig.aes"
+        dest: /var/lib/kubelet/kubeconfig
+        mode: '0600'

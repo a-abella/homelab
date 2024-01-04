@@ -1,0 +1,77 @@
+---
+
+- name: Create etcd config dir
+  ansible.builtin.file:
+    path: /etc/etcd
+    state: directory
+    mode: '0755'
+
+- name: Create etcd data dir
+  ansible.builtin.file:
+    path: /var/lib/etcd
+    state: directory
+    mode: '0710'
+
+# etcd_current_version: "{{ lookup('ansible.builtin.slurp', '/'.join([etcd_base, 'current_version'])) }}"
+# etcd_installer_path: "{{ etcd_base }}/etcd-v{{ etcd_current_version }}-linux-amd64.tar.gz"
+
+- name: Get current etcd installer version
+  ansible.builtin.slurp:
+    src: "{{ etcd_base }}/current_version"
+  register: slurp_version
+
+- name: Set etcd version fact
+  ansible.builtin.set_fact:
+    etcd_current_version: "{{ slurp_version['content'] | b64decode | trim }}"
+
+- name: Set etcd installer fact
+  ansible.builtin.set_fact:
+    etcd_installer_path: "{{ etcd_base }}/etcd-v{{ etcd_current_version }}-linux-amd64.tar.gz"
+
+- name: Create temporary extraction location
+  ansible.builtin.file:
+    path: /tmp/etcd_unarchive
+    state: directory
+    mode: '0755'
+
+- name: Unarchive etcd
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: "{{ etcd_installer_path }}"
+    dest: /tmp/etcd_unarchive
+    creates: "/tmp/installed_etcd_{{ etcd_current_version }}"
+
+- name: Copy etcd bins to path
+  ansible.builtin.copy:
+    remote_src: true
+    src: "/tmp/etcd_unarchive/etcd-v{{ etcd_current_version }}-linux-amd64/{{ item }}"
+    dest: "/usr/local/sbin/{{ item }}"
+    mode: '0755'
+  loop:
+    - etcd
+    - etcdutl
+    - etcdctl
+
+- name: Clean up unarchived dir
+  ansible.builtin.file:
+    path: /tmp/etcd_unarchive
+    state: absent
+
+- name: Set etcd config file
+  ansible.builtin.template:
+    src: etcd.conf.j2
+    dest: /etc/etcd/etcd.conf
+    mode: '0644'
+
+- name: Set etcd unit file
+  ansible.builtin.copy:
+    src: etcd.service
+    dest: /etc/systemd/system/etcd.service
+    mode: '0644'
+
+- name: Bring up etcd
+  ansible.builtin.systemd_service:
+    daemon-reload: true
+    name: etcd.service
+    enabled: true
+    state: started

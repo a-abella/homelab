@@ -1,0 +1,38 @@
+---
+
+- name: K8s-the-Hard-Way infrastructure config
+  hosts: etcd:controllers:workers
+  gather_facts: true
+  roles:
+    - role: resolvconf
+      tags:
+        - resolvconf
+        - resolv
+        - dns
+
+    - role: nfs
+      tags:
+        - nfs
+
+    - role: kubecerts
+      tags:
+        - kubecerts
+        - kcerts
+        - certs
+
+    - role: kubeconfigs
+      tags:
+        - kubeconfigs
+        - kconfigs
+        - configs
+
+    - role: encryption
+      when: inventory_hostname in groups.controllers
+      tags:
+        - encryption
+        - crypt
+
+    - role: etcd
+      when: inventory_hostname in groups.etcd
+      tags:
+        - etcd

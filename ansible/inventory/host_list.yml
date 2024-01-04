@@ -1,0 +1,53 @@
+---
+
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_ssh_extra_args: -o StrictHostKeyChecking=no
+    ansible_ssh_pipelining: True
+    ansible_become: true
+    ansible_user: antonio
+  
+  children:
+    proxmox:
+      hosts:
+        prox01.home.lan:
+        prox02.home.lan:
+        prox03.home.lan:
+      vars:
+        ansible_user: root
+    
+    vms:
+      hosts:
+        etcd01.home.lan:
+        etcd02.home.lan:
+        etcd03.home.lan:
+        kcontrol01.home.lan:
+        kcontrol02.home.lan:
+        kcontrol03.home.lan:
+        kworker01.home.lan:
+        kworker02.home.lan:
+        kworker03.home.lan:
+      vars:
+    
+    etcd:
+      hosts:
+        etcd01.home.lan:
+        etcd02.home.lan:
+        etcd03.home.lan:
+      vars:
+        
+    controllers:
+      hosts:
+        kcontrol01.home.lan:
+        kcontrol02.home.lan:
+        kcontrol03.home.lan:
+      vars:
+        
+    workers:
+      hosts:
+        kworker01.home.lan:
+        kworker02.home.lan:
+        kworker03.home.lan:
+      vars:
+        

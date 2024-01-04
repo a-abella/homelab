@@ -1,0 +1,7 @@
+---
+
+- name: Copy encryption config
+  ansible.builtin.copy:
+    src: encryption-config.yml.aes
+    dest: /root/encryption-config.yml
+    mode: '0600'

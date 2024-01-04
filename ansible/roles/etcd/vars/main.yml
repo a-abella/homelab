@@ -1,0 +1,5 @@
+etcd_base: /mnt/nfs/cluster/bin/etcd
+etcd_bins:
+  - etcd
+  - etcdutl
+  - etcdctl

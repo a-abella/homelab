@@ -1,0 +1,14 @@
+---
+
+- name: Remount when NFS client is updated
+  ansible.posix.mount:
+    path: /mnt/nfs
+    state: remounted
+  listen:
+    - remount
+
+- name: Trigger systemd daemon-reload when fstab changes
+  ansible.builtin.systemd:
+    daemon-reload: true
+  listen:
+    - daemon-reload

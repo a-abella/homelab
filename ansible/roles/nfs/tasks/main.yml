@@ -1,0 +1,23 @@
+---
+
+- name: Install NFS client
+  ansible.builtin.dnf:
+    update_cache: true
+    name: nfs-utils
+    state: present
+  notify: remount
+
+- name: Create NFS mount dir
+  ansible.builtin.file:
+    path: /mnt/nfs
+    state: directory
+    mode: '0755'
+
+- name: Mount NFS
+  ansible.posix.mount:
+    src: media.home.lan:/media
+    path: /mnt/nfs
+    opts: _netdev,nofail
+    state: mounted
+    fstype: nfs
+  notify: daemon-reload
