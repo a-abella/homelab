@@ -14,25 +14,43 @@
       tags:
         - nfs
 
-    - role: kubecerts
+    - role: directories
       tags:
+        - directories
+        - dirs
+
+    - role: kube-certs
+      tags:
+        - kube-certs
         - kubecerts
         - kcerts
         - certs
 
-    - role: kubeconfigs
+    - role: kube-configs
       tags:
+        - kube-configs
         - kubeconfigs
         - kconfigs
         - configs
-
-    - role: encryption
-      when: inventory_hostname in groups.controllers
-      tags:
-        - encryption
-        - crypt
 
     - role: etcd
       when: inventory_hostname in groups.etcd
       tags:
         - etcd
+
+    - role: kube-controlplane
+      when: inventory_hostname in groups.controllers
+      tags:
+        - kube-controlplane
+        - controlplane
+        - control-plane
+        - control_plane
+
+    - role: kube-kubelet
+      when: inventory_hostname in groups.controllers or
+            inventory_hostname in groups.workers
+      tags:
+        - kube-kubelets
+        - kube-kubelet
+        - kubelets
+        - kubelet

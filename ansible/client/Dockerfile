@@ -4,7 +4,7 @@ RUN adduser --uid 1000 antonio
 
 USER antonio
 
-RUN pip3 install ansible ansible-lint ansible-navigator
+RUN pip3 install ansible ansible-lint ansible-navigator dnspython
 
 ENV PATH="/home/antonio/.local/bin:$PATH"
  

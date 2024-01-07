@@ -1,0 +1,34 @@
+---
+
+- name: Trigger systemd daemon-reload when a unit file changes
+  ansible.builtin.systemd:
+    daemon-reload: true
+  listen:
+    - cp-daemon-reload
+
+- name: Restart kube-apiserver service
+  ansible.builtin.systemd_service:
+    name: kube-apiserver.service
+    state: restarted
+    enabled: true
+  listen:
+    - cp-daemon-reload
+    - apiserver-restart
+
+- name: Restart kube-controller-manager service
+  ansible.builtin.systemd_service:
+    name: kube-controller-manager.service
+    state: restarted
+    enabled: true
+  listen:
+    - cp-daemon-reload
+    - controller-manager-restart
+
+- name: Restart kube-scheduler service
+  ansible.builtin.systemd_service:
+    name: kube-scheduler.service
+    state: restarted
+    enabled: true
+  listen:
+    - cp-daemon-reload
+    - scheduler-restart

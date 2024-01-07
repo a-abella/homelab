@@ -1,0 +1,6 @@
+kube_base: /mnt/nfs/cluster/bin/kube
+kube_bins:
+  - kube-apiserver
+  - kube-controller-manager
+  - kubectl
+  - kube-scheduler

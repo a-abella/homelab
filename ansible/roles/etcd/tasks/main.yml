@@ -1,20 +1,5 @@
 ---
 
-- name: Create etcd config dir
-  ansible.builtin.file:
-    path: /etc/etcd
-    state: directory
-    mode: '0755'
-
-- name: Create etcd data dir
-  ansible.builtin.file:
-    path: /var/lib/etcd
-    state: directory
-    mode: '0710'
-
-# etcd_current_version: "{{ lookup('ansible.builtin.slurp', '/'.join([etcd_base, 'current_version'])) }}"
-# etcd_installer_path: "{{ etcd_base }}/etcd-v{{ etcd_current_version }}-linux-amd64.tar.gz"
-
 - name: Get current etcd installer version
   ansible.builtin.slurp:
     src: "{{ etcd_base }}/current_version"
@@ -47,10 +32,7 @@
     src: "/tmp/etcd_unarchive/etcd-v{{ etcd_current_version }}-linux-amd64/{{ item }}"
     dest: "/usr/local/sbin/{{ item }}"
     mode: '0755'
-  loop:
-    - etcd
-    - etcdutl
-    - etcdctl
+  loop: "{{ etcd_bins }}"
 
 - name: Clean up unarchived dir
   ansible.builtin.file:

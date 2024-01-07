@@ -1,0 +1,32 @@
+---
+
+- name: Kubelet kubeconfigs
+  when: inventory_hostname in groups.controllers or
+        inventory_hostname in groups.workers
+  block:
+    - name: Copy kubelet kubeconfigs
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: '0600'
+      loop:
+        - src: "{{ inventory_hostname_short }}.kubeconfig.aes"
+          dest: /var/lib/kubelet/kubeconfig
+        - src: kube-proxy.kubeconfig.aes
+          dest: /var/lib/kube-proxy/kubeconfig
+
+- name: Control plane kubeconfigs
+  when: inventory_hostname in groups.controllers
+  block:
+    - name: Copy control plane kubeconfigs
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: '0600'
+      loop:
+        - src: admin.kubeconfig.aes
+          dest: /root/admin.kubeconfig
+        - src: kube-controller-manager.kubeconfig.aes
+          dest: /var/lib/kubernetes/kube-controller-manager.kubeconfig
+        - src: kube-scheduler.kubeconfig.aes
+          dest: /var/lib/kubernetes/kube-scheduler.kubeconfig

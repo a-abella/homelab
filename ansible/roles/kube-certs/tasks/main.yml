@@ -1,0 +1,75 @@
+---
+
+- name: Etcd certs
+  when: inventory_hostname in groups.etcd
+  block:
+
+    - name: Copy certs
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "/etc/etcd/{{ item.dest }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - src: ca.crt
+          dest: ca.crt
+          mode: '0640'
+        - src: etcd.crt
+          dest: etcd.crt
+          mode: '0640'
+        - src: etcd.key.aes
+          dest: etcd.key
+          mode: '0600'
+
+- name: Kubelet certs
+  when: inventory_hostname in groups.controllers or
+        inventory_hostname in groups.workers
+  block:
+    - name: Copy certs
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "/var/lib/kubelet/{{ item.dest }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - src: ca.crt
+          dest: ca.crt
+          mode: '0640'
+        - src: "{{ inventory_hostname_short }}.crt"
+          dest: kubelet.crt
+          mode: '0640'
+        - src: "{{ inventory_hostname_short }}.key.aes"
+          dest: kubelet.key
+          mode: '0600'
+
+- name: Controllers certs
+  when: inventory_hostname in groups.controllers
+  block:
+    - name: Copy certs
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "/var/lib/kubernetes/{{ item.dest }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - src: ca.crt
+          dest: ca.crt
+          mode: '0640'
+        - src: ca.key.aes
+          dest: ca.key
+          mode: '0600'
+        - src: etcd.crt
+          dest: etcd.crt
+          mode: '0640'
+        - src: etcd.key.aes
+          dest: etcd.key
+          mode: '0600'
+        - src: kube-api-server.crt
+          dest: kube-api-server.crt
+          mode: '0640'
+        - src: kube-api-server.key.aes
+          dest: kube-api-server.key
+          mode: '0600'
+        - src: service-accounts.crt
+          dest: service-accounts.crt
+          mode: '0640'
+        - src: service-accounts.key.aes
+          dest: service-accounts.key
+          mode: '0600'

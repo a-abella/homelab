@@ -40,14 +40,20 @@ all:
     controllers:
       hosts:
         kcontrol01.home.lan:
+          pod_cidr: 10.1.0.0/16
         kcontrol02.home.lan:
+          pod_cidr: 10.2.0.0/16
         kcontrol03.home.lan:
+          pod_cidr: 10.3.0.0/16
       vars:
         
     workers:
       hosts:
         kworker01.home.lan:
+          pod_cidr: 10.11.0.0/16
         kworker02.home.lan:
+          pod_cidr: 10.12.0.0/16
         kworker03.home.lan:
+          pod_cidr: 10.13.0.0/16
       vars:
         

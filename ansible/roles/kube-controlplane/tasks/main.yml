@@ -1,0 +1,66 @@
+---
+
+- name: Get current kube components version
+  ansible.builtin.slurp:
+    src: "{{ kube_base }}/current_version"
+  register: slurp_version
+
+- name: Set kube version fact
+  ansible.builtin.set_fact:
+    kube_current_version: "{{ slurp_version['content'] | b64decode | trim }}"
+
+- name: Copy kube bins to path
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ kube_base }}/{{ item }}-{{ kube_current_version }}"
+    dest: "/usr/local/sbin/{{ item }}"
+    mode: '0755'
+  loop: "{{ kube_bins }}"
+  notify: apiserver-restart
+
+- name: Copy kube-apiserver unit file
+  ansible.builtin.template:
+    src: 'kube-apiserver.service.j2'
+    dest: '/etc/systemd/system/kube-apiserver.service'
+    mode: '0644'
+  notify:
+    - cp-daemon-reload
+    - apiserver-restart
+
+- name: Copy encryption config
+  ansible.builtin.copy:
+    src: encryption-config.yml.aes
+    dest: /var/lib/kubernetes/encryption-config.yml
+    mode: '0600'
+  notify:
+    - apiserver-restart
+
+
+- name: Copy kube-controller-manager unit file
+  ansible.builtin.template:
+    src: 'kube-controller-manager.service.j2'
+    dest: '/etc/systemd/system/kube-controller-manager.service'
+    mode: '0644'
+  notify:
+    - cp-daemon-reload
+    - controller-manager-restart
+
+- name: Copy kube-scheduler config file
+  ansible.builtin.copy:
+    src: 'kube-scheduler.yaml'
+    dest: '/etc/kubernetes/kube-scheduler.yaml'
+    mode: '0644'
+  notify:
+    - scheduler-restart
+
+- name: Copy kube-scheduler unit file
+  ansible.builtin.template:
+    src: 'kube-scheduler.service.j2'
+    dest: '/etc/systemd/system/kube-scheduler.service'
+    mode: '0644'
+  notify:
+    - cp-daemon-reload
+    - scheduler-restart
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

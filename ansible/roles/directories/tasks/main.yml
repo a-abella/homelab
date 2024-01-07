@@ -1,0 +1,41 @@
+---
+
+- name: Etcd dirs
+  when: inventory_hostname in groups.etcd
+  block:
+    - name: Create etcd config dir
+      ansible.builtin.file:
+        path: /etc/etcd
+        state: directory
+        mode: '0755'
+
+    - name: Create etcd data dir
+      ansible.builtin.file:
+        path: /var/lib/etcd
+        state: directory
+        mode: '0710'
+
+- name: Kubernetes dirs
+  when: inventory_hostname in groups.controllers or
+        inventory_hostname in groups.workers
+  block:
+    - name: Create kubernetes config dir
+      ansible.builtin.file:
+        path: /etc/kubernetes
+        state: directory
+        mode: '0755'
+    - name: Create kubernetes data dir
+      ansible.builtin.file:
+        path: /var/lib/kubernetes
+        state: directory
+        mode: '0710'
+    - name: Create kubelet data dir
+      ansible.builtin.file:
+        path: /var/lib/kubelet
+        state: directory
+        mode: '0710'
+    - name: Create kube-proxy data dir
+      ansible.builtin.file:
+        path: /var/lib/kube-proxy
+        state: directory
+        mode: '0710'

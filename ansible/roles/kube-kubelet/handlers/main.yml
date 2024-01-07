@@ -1,0 +1,31 @@
+---
+
+- name: Execute systemd daemon-reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+  listen:
+    - klet-daemon-reload
+
+- name: Restart containerd
+  ansible.builtin.systemd:
+    name: containerd.service
+    state: restarted
+    enabled: true
+  listen:
+    - containerd-restart
+
+- name: Restart kubelet
+  ansible.builtin.systemd:
+    name: kubelet.service
+    state: restarted
+    enabled: true
+  listen:
+    - kubelet-restart
+
+- name: Restart kube-proxy
+  ansible.builtin.systemd:
+    name: kube-proxy.service
+    state: restarted
+    enabled: true
+  listen:
+    - kubeproxy-restart

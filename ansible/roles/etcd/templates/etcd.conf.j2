@@ -58,7 +58,7 @@ advertise-client-urls: https://{{ ansible_default_ipv4.address }}:2379
 #discovery-srv:
 
 # Initial cluster configuration for bootstrapping.
-initial-cluster: etcd01.home.lan=https://192.168.101.1:2380,etcd02.home.lan=https://192.168.102.1:2380,etcd03.home.lan=https://192.168.103.1:2380
+initial-cluster: etcd01.home.lan=https://{{ lookup('community.general.dig', 'etcd01.home.lan') }}:2380,etcd02.home.lan=https://{{ lookup('community.general.dig', 'etcd02.home.lan') }}:2380,etcd03.home.lan=https://{{ lookup('community.general.dig', 'etcd03.home.lan') }}:2380
 
 # Initial cluster token for the etcd cluster during bootstrap.
 initial-cluster-token: 'etcd-cluster'
