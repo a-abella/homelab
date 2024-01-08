@@ -18,6 +18,11 @@
 - name: Control plane kubeconfigs
   when: inventory_hostname in groups.controllers
   block:
+    - name: Create root user kube dir
+      ansible.builtin.file:
+        path: /root/.kube
+        state: directory
+        mode: '0700'
     - name: Copy control plane kubeconfigs
       ansible.builtin.copy:
         src: "{{ item.src }}"
@@ -25,7 +30,7 @@
         mode: '0600'
       loop:
         - src: admin.kubeconfig.aes
-          dest: /root/admin.kubeconfig
+          dest: /root/.kube/config
         - src: kube-controller-manager.kubeconfig.aes
           dest: /var/lib/kubernetes/kube-controller-manager.kubeconfig
         - src: kube-scheduler.kubeconfig.aes

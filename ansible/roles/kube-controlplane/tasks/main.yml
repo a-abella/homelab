@@ -3,11 +3,21 @@
 - name: Get current kube components version
   ansible.builtin.slurp:
     src: "{{ kube_base }}/current_version"
-  register: slurp_version
+  register: slurp_kube_version
+
+- name: Get current helm version
+  ansible.builtin.slurp:
+    src: "{{ helm_base }}/current_version"
+  register: slurp_helm_version
 
 - name: Set kube version fact
   ansible.builtin.set_fact:
-    kube_current_version: "{{ slurp_version['content'] | b64decode | trim }}"
+    kube_current_version: "{{ slurp_kube_version['content'] | b64decode | trim }}"
+    helm_current_version: "{{ slurp_helm_version['content'] | b64decode | trim }}"
+
+- name: Set component installer facts
+  ansible.builtin.set_fact:
+    helm_installer_path: "{{ helm_base }}/helm-v{{ helm_current_version }}-linux-amd64.tar.gz"
 
 - name: Copy kube bins to path
   ansible.builtin.copy:
@@ -61,6 +71,39 @@
   notify:
     - cp-daemon-reload
     - scheduler-restart
+
+- name: Create temporary extraction location
+  ansible.builtin.file:
+    path: "/tmp/{{ item }}_unarchive"
+    state: directory
+    mode: '0755'
+  loop:
+    - helm
+
+- name: Unarchive components
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: "{{ item.installer_path }}"
+    dest: "/tmp/{{ item.component }}_unarchive"
+  loop:
+    - component: helm
+      installer_path: "{{ helm_installer_path }}"
+      current_version: "{{ helm_current_version }}"
+
+- name: Copy unarchived helm bin to path
+  ansible.builtin.copy:
+    remote_src: true
+    src: "/tmp/helm_unarchive/linux-amd64/{{ item }}"
+    dest: "/usr/local/sbin/{{ item }}"
+    mode: '0755'
+  loop: "{{ helm_bins }}"
+
+- name: Cleanup unarchive dirs
+  ansible.builtin.file:
+    path: "/tmp/{{ item }}_unarchive"
+    state: absent
+  loop:
+    - helm
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers

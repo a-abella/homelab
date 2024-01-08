@@ -4,3 +4,7 @@ kube_bins:
   - kube-controller-manager
   - kubectl
   - kube-scheduler
+
+helm_base: /mnt/nfs/cluster/bin/helm
+helm_bins:
+  - helm
