@@ -1,0 +1,11 @@
+---
+
+
+- name: Unmount NFS
+  ansible.posix.mount:
+    src: media.home.lan:/media
+    path: /mnt/nfs
+    opts: _netdev,nofail
+    state: absent
+    fstype: nfs
+  notify: daemon-reload

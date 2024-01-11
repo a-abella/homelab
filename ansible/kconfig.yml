@@ -13,6 +13,7 @@
     - role: nfs
       tags:
         - nfs
+        - always
 
     - role: directories
       tags:
@@ -54,3 +55,8 @@
         - kube-kubelet
         - kubelets
         - kubelet
+
+    - role: nfs-umount
+      tags:
+        - nfs-umount
+        - always
