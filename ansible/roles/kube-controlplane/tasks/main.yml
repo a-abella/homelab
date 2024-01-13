@@ -108,26 +108,56 @@
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
-- name: Install keepalived
-  ansible.builtin.dnf:
-    name: keepalived
-    state: present
+- name: HAProxy
   tags:
-    - ka
-    - keepalive
-    - keepalived
+    - ha
+    - haproxy
+  block:
+    - name: Install haproxy
+      ansible.builtin.dnf:
+        name: haproxy
+        state: present
 
-- name: Copy keepalived config
-  ansible.builtin.template:
-    src: keepalived.conf.j2
-    dest: /etc/keepalived/keepalived.conf
-    mode: '0644'
+    - name: Set HAProxy SELinux boolean
+      ansible.posix.seboolean:
+        name: haproxy_connect_any
+        state: true
+        persistent: true
+
+    - name: Set ip_nonlocal_bind sysctl for keepalived vrrp
+      ansible.posix.sysctl:
+        name: net.ipv4.ip_nonlocal_bind
+        value: '1'
+        sysctl_set: true
+        state: present
+        reload: true
+
+    - name: Copy haproxy config
+      ansible.builtin.template:
+        src: haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+        mode: '0644'
+      notify:
+        - haproxy-restart
+
+- name: Keepalived
   tags:
     - ka
     - keepalive
     - keepalived
-  notify:
-    - keepalived-restart
+  block:
+    - name: Install keepalived
+      ansible.builtin.dnf:
+        name: keepalived
+        state: present
+
+    - name: Copy keepalived config
+      ansible.builtin.template:
+        src: keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+        mode: '0644'
+      notify:
+        - keepalived-restart
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers

@@ -33,6 +33,14 @@
     - cp-daemon-reload
     - scheduler-restart
 
+- name: Restart haproxy service
+  ansible.builtin.systemd_service:
+    name: haproxy.service
+    state: restarted
+    enabled: true
+  listen:
+    - haproxy-restart
+
 - name: Restart keepalived service
   ansible.builtin.systemd_service:
     name: keepalived.service

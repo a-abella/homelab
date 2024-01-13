@@ -1,0 +1,24 @@
+defaults
+    mode                tcp
+    timeout connect     5s
+    timeout client      10s
+    timeout server      10s
+
+
+frontend stats
+    mode http
+    bind *:8404
+    stats enable
+    stats uri /stats
+    stats refresh 10s
+    stats admin if LOCALHOST
+
+frontend kube-apiserver-lb
+    bind {{ lookup('community.general.dig', 'kubernetes.home.lan') }}:7443
+    default_backend     kube-apiservers
+
+backend kube-apiservers
+    balance            roundrobin
+    {% for host in groups.controllers %}
+    server              {{ host }}  {{ lookup('community.general.dig', host) }}:6443 check
+    {% endfor %}

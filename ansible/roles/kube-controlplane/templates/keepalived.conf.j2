@@ -1,10 +1,10 @@
-vrrp_track_process kube-apiserver {
-    process kube-apiserver
+vrrp_track_process haproxy {
+    process haproxy
     quorum 1
     delay 2
 }
  
-vrrp_instance apiserver-vip {
+vrrp_instance node-haproxy-vip {
     state BACKUP
     priority 101
     interface eth0
@@ -23,6 +23,6 @@ vrrp_instance apiserver-vip {
     }
  
     track_process {
-        kube-apiserver
+        haproxy
     }
 }
