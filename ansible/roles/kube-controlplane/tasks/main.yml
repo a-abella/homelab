@@ -107,3 +107,27 @@
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
+
+- name: Install keepalived
+  ansible.builtin.dnf:
+    name: keepalived
+    state: present
+  tags:
+    - ka
+    - keepalive
+    - keepalived
+
+- name: Copy keepalived config
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    mode: '0644'
+  tags:
+    - ka
+    - keepalive
+    - keepalived
+  notify:
+    - keepalived-restart
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

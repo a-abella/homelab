@@ -1,0 +1,28 @@
+vrrp_track_process kube-apiserver {
+    process kube-apiserver
+    quorum 1
+    delay 2
+}
+ 
+vrrp_instance apiserver-vip {
+    state BACKUP
+    priority 101
+    interface eth0
+    virtual_router_id 47
+    advert_int 3
+ 
+    unicast_src_ip {{ ansible_default_ipv4.address  }}
+    unicast_peer {
+    {%  for host in groups.controllers | difference([inventory_hostname]) %}
+    {{ lookup('community.general.dig', host) }}/17
+    {% endfor -%}
+    }
+ 
+    virtual_ipaddress {
+        192.168.127.254/17
+    }
+ 
+    track_process {
+        kube-apiserver
+    }
+}

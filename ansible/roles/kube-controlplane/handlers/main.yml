@@ -32,3 +32,11 @@
   listen:
     - cp-daemon-reload
     - scheduler-restart
+
+- name: Restart keepalived service
+  ansible.builtin.systemd_service:
+    name: keepalived.service
+    state: restarted
+    enabled: true
+  listen:
+    - keepalived-restart
