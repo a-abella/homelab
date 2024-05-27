@@ -21,11 +21,3 @@
     enabled: true
   listen:
     - kubelet-restart
-
-- name: Restart kube-proxy
-  ansible.builtin.systemd:
-    name: kube-proxy.service
-    state: restarted
-    enabled: true
-  listen:
-    - kubeproxy-restart

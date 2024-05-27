@@ -5,11 +5,6 @@
     src: "{{ containerd_base }}/current_version"
   register: slurp_containerd_version
 
-- name: Get current cni-plugins components version
-  ansible.builtin.slurp:
-    src: "{{ cni_base }}/current_version"
-  register: slurp_cni_version
-
 - name: Get current runc components version
   ansible.builtin.slurp:
     src: "{{ runc_base }}/current_version"
@@ -28,7 +23,6 @@
 - name: Set component version facts
   ansible.builtin.set_fact:
     containerd_current_version: "{{ slurp_containerd_version['content'] | b64decode | trim }}"
-    cni_current_version: "{{ slurp_cni_version['content'] | b64decode | trim }}"
     runc_current_version: "{{ slurp_runc_version['content'] | b64decode | trim }}"
     cri_current_version: "{{ slurp_cri_version['content'] | b64decode | trim }}"
     kubelet_current_version: "{{ slurp_kubelet_version['content'] | b64decode | trim }}"
@@ -36,11 +30,9 @@
 - name: Set component installer facts
   ansible.builtin.set_fact:
     containerd_installer_path: "{{ containerd_base }}/containerd-{{ containerd_current_version }}-linux-amd64.tar.gz"
-    cni_installer_path: "{{ cni_base }}/cni-plugins-linux-amd64-v{{ cni_current_version }}.tgz"
     runc_installer_path: "{{ runc_base }}/runc.amd64.{{ runc_current_version }}"
     cri_installer_path: "{{ cri_base }}/crictl-v{{ cri_current_version }}-linux-amd64.tar.gz"
     kubelet_installer_path: "{{ kubelet_base }}/kubelet-{{ kubelet_current_version }}"
-    kubeproxy_installer_path: "{{ kubelet_base }}/kube-proxy-{{ kubelet_current_version }}"
 
 - name: Create temporary extraction locations
   ansible.builtin.file:
@@ -49,7 +41,6 @@
     mode: '0755'
   loop:
     - containerd
-    - cni-plugins
     - crictl
 
 - name: Unarchive components
@@ -61,9 +52,6 @@
     - component: containerd
       installer_path: "{{ containerd_installer_path }}"
       current_version: "{{ containerd_current_version }}"
-    - component: cni-plugins
-      installer_path: "{{ cni_installer_path }}"
-      current_version: "{{ cni_current_version }}"
     - component: crictl
       installer_path: "{{ cri_installer_path }}"
       current_version: "{{ cri_current_version }}"
@@ -100,35 +88,6 @@
     - klet-daemon-reload
     - containerd-restart
 
-- name: Create cni-plugins bin directory
-  ansible.builtin.file:
-    path: "/opt/cni/bin"
-    state: directory
-    mode: '0755'
-
-- name: Copy unarchived cni-plugin bins to path
-  ansible.builtin.copy:
-    remote_src: true
-    src: "/tmp/cni-plugins_unarchive/{{ item }}"
-    dest: "/opt/cni/bin/{{ item }}"
-    mode: '0755'
-  loop: "{{ cni_bins }}"
-
-- name: Create cni config dir
-  ansible.builtin.file:
-    path: '/etc/cni/net.d'
-    state: directory
-    mode: '0755'
-
-- name: Copy cni config files
-  ansible.builtin.template:
-    src: "cni-{{ item }}.j2"
-    dest: '/etc/cni/net.d/{{ item }}'
-    mode: '0644'
-  loop:
-    - 10-bridge.conf
-    - 99-loopback.conf
-
 - name: Copy unarchived cri bins to path
   ansible.builtin.copy:
     remote_src: true
@@ -143,7 +102,6 @@
     state: absent
   loop:
     - containerd
-    - cni-plugins
     - crictl
 
 - name: Copy uncompressed binaries to path
@@ -157,8 +115,6 @@
       installer_path: "{{ runc_installer_path }}"
     - component: kubelet
       installer_path: "{{ kubelet_installer_path }}"
-    - component: kube-proxy
-      installer_path: "{{ kubeproxy_installer_path }}"
 
 - name: Copy kubelet config file
   ansible.builtin.template:
@@ -177,28 +133,9 @@
     - klet-daemon-reload
     - kubelet-restart
 
-- name: Copy kube-proxy config file
-  ansible.builtin.copy:
-    src: 'kube-proxy-config.yaml'
-    dest: '/var/lib/kube-proxy/kube-proxy-config.yaml'
-    mode: '0644'
-  notify:
-    - kubeproxy-restart
-
-- name: Copy kube-proxy unit file
-  ansible.builtin.template:
-    src: 'kube-proxy.service.j2'
-    dest: '/etc/systemd/system/kube-proxy.service'
-    mode: '0644'
-  notify:
-    - klet-daemon-reload
-    - kubeproxy-restart
-
-- name: Enable br_netfiler module
-  ansible.builtin.modprobe:
-    name: br_netfilter
-    state: present
-    persistent: present
-
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
+
+- name: Install cilium with helm
+  debug:
+    msg: "You should install Cilium with helm now"

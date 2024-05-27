@@ -12,8 +12,6 @@
       loop:
         - src: "{{ inventory_hostname_short }}.kubeconfig.aes"
           dest: /var/lib/kubelet/kubeconfig
-        - src: kube-proxy.kubeconfig.aes
-          dest: /var/lib/kube-proxy/kubeconfig
 
 - name: Control plane kubeconfigs
   when: inventory_hostname in groups.controllers

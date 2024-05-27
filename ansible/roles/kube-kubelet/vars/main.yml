@@ -7,27 +7,6 @@ containerd_bins:
   - containerd-stress
   - ctr
 
-cni_base: /mnt/nfs/cluster/bin/cni-plugins
-cni_bins:
-  - bandwidth
-  - bridge
-  - dhcp
-  - dummy
-  - firewall
-  - host-device
-  - host-local
-  - ipvlan
-  - loopback
-  - macvlan
-  - portmap
-  - ptp
-  - sbr
-  - static
-  - tap
-  - tuning
-  - vlan
-  - vrf
-
 runc_base: /mnt/nfs/cluster/bin/runc
 runc_bins:
   - runc
@@ -39,4 +18,3 @@ cri_bins:
 kubelet_base: /mnt/nfs/cluster/bin/kube
 kubelet_bins:
   - kubelet
-  - kube-proxy
