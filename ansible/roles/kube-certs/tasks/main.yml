@@ -73,3 +73,9 @@
         - src: service-accounts.key.aes
           dest: service-accounts.key
           mode: '0600'
+        - src: front-proxy-client.crt
+          dest: front-proxy-client.crt
+          mode: '0640'
+        - src: front-proxy-client.key.aes
+          dest: front-proxy-client.key
+          mode: '0600'
