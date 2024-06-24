@@ -156,7 +156,7 @@ _kliases () {
   fi
 }
 _tmuxcfg () {
-  if [[ ! -e "$HOME/.tmux.conf" ]]; then
+  if [[ ! -e "$HOME/.tmux.conf" ]] && command -v tmux &>/dev/null; then
     sed 's/^ *//' > "$HOME/.tmux.conf" << EOF
       set-option -g activity-action other
       set-option -g assume-paste-time 1
