@@ -244,7 +244,7 @@ _chromaconfig () {
       return
     fi
   fi
-  alias chroma="$HOME/.bin/chroma --style=dracula --format=terminal256"
+  alias chroma="$HOME/.bin/chroma --style=dracula --formatter=terminal256"
   alias ccat="chroma"
   alias cless='_cless(){ chroma "$@" | less -R;  unset -f _cless; }; _cless'
 }
