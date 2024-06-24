@@ -228,7 +228,7 @@ _tmuxcfg () {
 EOF
 }
 
-_chromainstall () {
+_chromaconfig () {
   if [[ ! -d "$HOME/.bin" ]]; then
     mkdir -p "$HOME/.bin"
   fi
