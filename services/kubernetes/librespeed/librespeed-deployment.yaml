@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    stack: librespeed
+  name: librespeed
+  namespace: librespeed
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      stack: librespeed
+  template:
+    metadata:
+      labels:
+        network/librespeed-default: "true"
+        stack: librespeed
+    spec:
+      containers:
+        - env:
+            - name: MODE
+              value: "standalone"
+            - name: TELEMETRY
+              value: "true"
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: librespeed-password
+          image: ghcr.io/librespeed/speedtest:5.3.3
+          name: librespeed
+          ports:
+            - containerPort: 80
+              protocol: TCP
+      restartPolicy: Always
