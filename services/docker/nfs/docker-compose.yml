@@ -3,10 +3,14 @@ services:
     container_name: nfs-server
     image: aabel011/nfs-server:latest
     environment:
-      NFS_EXPORT_0: "/media    (rw,insecure,all_squash,anonuid=1001,anongid=1001)"
-      NFS_VERSION: 3
+      NFS_EXPORT_0: "/exports          *(rw,insecure,all_squash,anonuid=1001,anongid=1001,fsid=0,no_subtree_check)"
+      NFS_EXPORT_1: "/exports/media    *(rw,insecure,all_squash,anonuid=1001,anongid=1001,no_subtree_check)"
+      NFS_EXPORT_2: "/exports/pvs      *(rw,insecure,no_root_squash,sync,no_subtree_check)"
+      NFS_VERSION: 4.2
     volumes:
-      - /data/nfs/media:/media
+      - /data/nfs/exports:/exports
+      - /data/nfs/media:/exports/media
+      - /data/nfs/pvs:/exports/pvs
       - /lib/modules:/lib/modules:ro
     cap_add:
       - 'SYS_ADMIN'
@@ -31,4 +35,3 @@ services:
       options:
         max-size: 1m
         max-file: 3
-

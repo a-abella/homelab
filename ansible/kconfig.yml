@@ -55,6 +55,12 @@
         - kube-kubelet
         - kubelets
         - kubelet
+        
+    - role: misc-system
+      tags:
+        - misc-system
+        - misc
+        - system
 
     - role: nfs-umount
       tags:
