@@ -1,0 +1,2 @@
+docker/librespeed/password.secret
+kubernetes/librespeed/password-secret.yaml
