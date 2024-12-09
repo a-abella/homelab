@@ -22,17 +22,37 @@
 
 - name: Set component version facts
   ansible.builtin.set_fact:
-    containerd_current_version: "{{ slurp_containerd_version['content'] | b64decode | trim }}"
-    runc_current_version: "{{ slurp_runc_version['content'] | b64decode | trim }}"
-    cri_current_version: "{{ slurp_cri_version['content'] | b64decode | trim }}"
-    kubelet_current_version: "{{ slurp_kubelet_version['content'] | b64decode | trim }}"
+    containerd_target_version: "{{ slurp_containerd_version['content'] | b64decode | trim }}"
+    runc_target_version: "{{ slurp_runc_version['content'] | b64decode | trim }}"
+    cri_target_version: "{{ slurp_cri_version['content'] | b64decode | trim }}"
+    kubelet_target_version: "{{ slurp_kubelet_version['content'] | b64decode | trim }}"
 
 - name: Set component installer facts
   ansible.builtin.set_fact:
-    containerd_installer_path: "{{ containerd_base }}/containerd-{{ containerd_current_version }}-linux-amd64.tar.gz"
-    runc_installer_path: "{{ runc_base }}/runc.amd64.{{ runc_current_version }}"
-    cri_installer_path: "{{ cri_base }}/crictl-v{{ cri_current_version }}-linux-amd64.tar.gz"
-    kubelet_installer_path: "{{ kubelet_base }}/kubelet-{{ kubelet_current_version }}"
+    containerd_installer_path: "{{ containerd_base }}/containerd-{{ containerd_target_version }}-linux-amd64.tar.gz"
+    runc_installer_path: "{{ runc_base }}/runc.amd64.{{ runc_target_version }}"
+    cri_installer_path: "{{ cri_base }}/crictl-v{{ cri_target_version }}-linux-amd64.tar.gz"
+    kubelet_installer_path: "{{ kubelet_base }}/kubelet-{{ kubelet_target_version }}"
+
+- name: Get containerd installed version if present
+  ansible.builtin.shell: test -f /usr/local/sbin/containerd && /usr/local/sbin/containerd --version | head -n1 | awk '{print $3}' | sed 's/^v//'
+  register: containerd_installed_version
+  ignore_errors: true
+
+- name: Get runc installed version if present
+  ansible.builtin.shell: test -f /usr/local/sbin/runc && /usr/local/sbin/runc --version | head -n1 | awk '{print $3}'
+  register: runc_installed_version
+  ignore_errors: true
+
+- name: Get cri installed version if present
+  ansible.builtin.shell: test -f /usr/local/sbin/crictl && /usr/local/sbin/crictl --version | head -n1 | awk '{print $3}' | sed 's/^v//'
+  register: cri_installed_version
+  ignore_errors: true
+
+- name: Get kubelet installed version if present
+  ansible.builtin.shell: test -f /usr/local/sbin/kubelet && /usr/local/sbin/kubelet --version | head -n1 | awk '{print $2}' | sed 's/^v//'
+  register: kubelet_installed_version
+  ignore_errors: true
 
 - name: Create temporary extraction locations
   ansible.builtin.file:
@@ -51,19 +71,10 @@
   loop:
     - component: containerd
       installer_path: "{{ containerd_installer_path }}"
-      current_version: "{{ containerd_current_version }}"
+      target_version: "{{ containerd_target_version }}"
     - component: crictl
       installer_path: "{{ cri_installer_path }}"
-      current_version: "{{ cri_current_version }}"
-
-- name: Copy unarchived containerd bins to path
-  ansible.builtin.copy:
-    remote_src: true
-    src: "/tmp/containerd_unarchive/bin/{{ item }}"
-    dest: "/usr/local/sbin/{{ item }}"
-    mode: '0755'
-  loop: "{{ containerd_bins }}"
-  notify: containerd-restart
+      target_version: "{{ cri_target_version }}"
 
 - name: Create containerd config dir
   ansible.builtin.file:
@@ -87,35 +98,7 @@
   notify:
     - klet-daemon-reload
     - containerd-restart
-
-- name: Copy unarchived cri bins to path
-  ansible.builtin.copy:
-    remote_src: true
-    src: "/tmp/crictl_unarchive/{{ item }}"
-    dest: "/usr/local/sbin/{{ item }}"
-    mode: '0755'
-  loop: "{{ cri_bins }}"
-
-- name: Cleanup unarchive dirs
-  ansible.builtin.file:
-    path: "/tmp/{{ item }}_unarchive"
-    state: absent
-  loop:
-    - containerd
-    - crictl
-
-- name: Copy uncompressed binaries to path
-  ansible.builtin.copy:
-    remote_src: true
-    src: "{{ item.installer_path }}"
-    dest: "/usr/local/sbin/{{ item.component }}"
-    mode: '0755'
-  loop:
-    - component: runc
-      installer_path: "{{ runc_installer_path }}"
-    - component: kubelet
-      installer_path: "{{ kubelet_installer_path }}"
-
+    
 - name: Copy kubelet config file
   ansible.builtin.template:
     src: 'kubelet-config.yaml.j2'
@@ -133,9 +116,105 @@
     - klet-daemon-reload
     - kubelet-restart
 
+- name: Install components
+  throttle: 1
+  any_errors_fatal: true
+  when: >
+    containerd_installed_version.rc != 0 or containerd_target_version is version(containerd_installed_version.stdout_lines[0], '>', version_type='semver')
+    or runc_installed_version.rc != 0 or runc_target_version is version(runc_installed_version.stdout_lines[0], '>', version_type='semver')
+    or cri_installed_version.rc != 0 or cri_target_version is version(cri_installed_version.stdout_lines[0], '>', version_type='semver')
+    or kubelet_installed_version.rc != 0 or kubelet_target_version is version(kubelet_installed_version.stdout_lines[0], '>', version_type='semver')
+  block:
+    - name: Stop kubelet service if kubelet is installed
+      ansible.builtin.systemd_service:
+        name: kubelet.service
+        state: stopped
+      when: kubelet_installed_version.rc == 0 and kubelet_installed_version.stdout is defined
+      
+    - name: Stop containerd service if containerd is installed
+      ansible.builtin.systemd_service:
+        name: containerd.service
+        state: stopped
+      when: containerd_installed_version.rc == 0 and containerd_installed_version.stdout is defined
+
+    - name: Copy unarchived containerd bins to path
+      ansible.builtin.copy:
+        remote_src: true
+        src: "/tmp/containerd_unarchive/bin/{{ item }}"
+        dest: "/usr/local/sbin/{{ item }}"
+        mode: '0755'
+      loop: "{{ containerd_bins }}"
+      notify: containerd-restart
+
+    - name: Copy unarchived cri bins to path
+      ansible.builtin.copy:
+        remote_src: true
+        src: "/tmp/crictl_unarchive/{{ item }}"
+        dest: "/usr/local/sbin/{{ item }}"
+        mode: '0755'
+      loop: "{{ cri_bins }}"
+
+    - name: Cleanup unarchive dirs
+      ansible.builtin.file:
+        path: "/tmp/{{ item }}_unarchive"
+        state: absent
+      loop:
+        - containerd
+        - crictl
+
+    - name: Copy uncompressed binaries to path
+      ansible.builtin.copy:
+        remote_src: true
+        src: "{{ item.installer_path }}"
+        dest: "/usr/local/sbin/{{ item.component }}"
+        mode: '0755'
+      loop:
+        - component: runc
+          installer_path: "{{ runc_installer_path }}"
+        - component: kubelet
+          installer_path: "{{ kubelet_installer_path }}"
+          
+    - name: Get installed containerd version post-install
+      ansible.builtin.shell: /usr/local/sbin/containerd --version | head -n1 | awk '{print $3}' | sed 's/^v//'
+      register: containerd_postinstall_version
+      
+    - name: Get installed kubelet version post-install
+      ansible.builtin.shell: /usr/local/sbin/kubelet --version | head -n1 | awk '{print $2}' | sed 's/^v//'
+      register: kubelet_postinstall_version
+      
+    - name: Get installed runc version post-install
+      ansible.builtin.shell: /usr/local/sbin/runc --version | head -n1 | awk '{print $3}'
+      register: runc_postinstall_version
+
+    - name: Get installed cri version post-install
+      ansible.builtin.shell: /usr/local/sbin/crictl --version | head -n1 | awk '{print $3}' | sed 's/^v//'
+      register: cri_postinstall_version
+      
+    - name: Assert that all components are installed
+      ansible.builtin.assert:
+        that:
+          - containerd_postinstall_version.stdout is version(containerd_target_version, '==', version_type='semver')
+          - kubelet_postinstall_version.stdout is version(kubelet_target_version, '==', version_type='semver')
+          - runc_postinstall_version.stdout is version(runc_target_version, '==', version_type='semver')
+          - cri_postinstall_version.stdout is version(cri_target_version, '==', version_type='semver')
+        fail_msg: "Not all components are installed"
+        success_msg: "All components are installed"
+
+    - name: Start containerd service
+      ansible.builtin.systemd_service:
+        name: containerd.service
+        state: started
+        enabled: true
+
+    - name: Start kubelet service
+      ansible.builtin.systemd_service:
+        name: kubelet.service
+        state: started
+        enabled: true
+
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
 - name: Install cilium with helm
-  debug:
+  ansible.builtin.debug:
     msg: "You should install Cilium with helm now"

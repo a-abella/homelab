@@ -3,6 +3,7 @@
 - name: K8s-the-Hard-Way infrastructure config
   hosts: etcd:controllers:workers
   gather_facts: true
+  serial: 1
   roles:
     - role: resolvconf
       tags:

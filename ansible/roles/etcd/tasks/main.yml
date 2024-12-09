@@ -1,17 +1,22 @@
 ---
 
-- name: Get current etcd installer version
+- name: Get current etcd target installer version
   ansible.builtin.slurp:
     src: "{{ etcd_base }}/current_version"
   register: slurp_version
 
-- name: Set etcd version fact
-  ansible.builtin.set_fact:
-    etcd_current_version: "{{ slurp_version['content'] | b64decode | trim }}"
+- name: Get installed etcd version if present
+  ansible.builtin.shell: test -f /usr/local/sbin/etcd && /usr/local/sbin/etcd --version | head -n1 | awk '{print $3}'
+  register: etcd_installed_version
+  ignore_errors: true
 
-- name: Set etcd installer fact
+- name: Set etcd target version fact
   ansible.builtin.set_fact:
-    etcd_installer_path: "{{ etcd_base }}/etcd-v{{ etcd_current_version }}-linux-amd64.tar.gz"
+    etcd_target_version: "{{ slurp_version['content'] | b64decode | trim }}"
+
+- name: Set etcd target installer fact
+  ansible.builtin.set_fact:
+    etcd_installer_path: "{{ etcd_base }}/etcd-v{{ etcd_target_version }}-linux-amd64.tar.gz"
 
 - name: Create temporary extraction location
   ansible.builtin.file:
@@ -24,36 +29,74 @@
     remote_src: true
     src: "{{ etcd_installer_path }}"
     dest: /tmp/etcd_unarchive
-    creates: "/tmp/installed_etcd_{{ etcd_current_version }}"
+    creates: "/tmp/installed_etcd_{{ etcd_target_version }}"
 
-- name: Copy etcd bins to path
-  ansible.builtin.copy:
-    remote_src: true
-    src: "/tmp/etcd_unarchive/etcd-v{{ etcd_current_version }}-linux-amd64/{{ item }}"
-    dest: "/usr/local/sbin/{{ item }}"
-    mode: '0755'
-  loop: "{{ etcd_bins }}"
+- name: Install etcd
+  throttle: 1
+  any_errors_fatal: true
+  when: etcd_installed_version.rc != 0 or etcd_target_version is version(etcd_installed_version.stdout_lines[0], '>', version_type='semver')
+  block:
+    - name: Stop etcd service if etcd is installed
+      ansible.builtin.systemd_service:
+        name: etcd.service
+        state: stopped
+      when: etcd_installed_version.rc == 0 and etcd_installed_version.stdout is defined
 
-- name: Clean up unarchived dir
-  ansible.builtin.file:
-    path: /tmp/etcd_unarchive
-    state: absent
+    - name: Copy etcd bins to path
+      ansible.builtin.copy:
+        remote_src: true
+        src: "/tmp/etcd_unarchive/etcd-v{{ etcd_target_version }}-linux-amd64/{{ item }}"
+        dest: "/usr/local/sbin/{{ item }}"
+        mode: '0755'
+      loop: "{{ etcd_bins }}"
 
-- name: Set etcd config file
-  ansible.builtin.template:
-    src: etcd.conf.j2
-    dest: /etc/etcd/etcd.conf
-    mode: '0644'
+    - name: Clean up unarchived dir
+      ansible.builtin.file:
+        path: /tmp/etcd_unarchive
+        state: absent
 
-- name: Set etcd unit file
-  ansible.builtin.copy:
-    src: etcd.service
-    dest: /etc/systemd/system/etcd.service
-    mode: '0644'
+    - name: Set etcd config file
+      ansible.builtin.template:
+        src: etcd.conf.j2
+        dest: /etc/etcd/etcd.conf
+        mode: '0644'
 
-- name: Bring up etcd
-  ansible.builtin.systemd_service:
-    daemon-reload: true
-    name: etcd.service
-    enabled: true
-    state: started
+    - name: Set etcd unit file
+      ansible.builtin.copy:
+        src: etcd.service
+        dest: /etc/systemd/system/etcd.service
+        mode: '0644'
+
+    - name: Bring up etcd
+      ansible.builtin.systemd_service:
+        daemon-reload: true
+        name: etcd.service
+        enabled: true
+        state: started
+
+    - name: Get etcd endpoint health
+      ansible.builtin.shell: |
+        /usr/local/sbin/etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/etcd/ca.crt \
+        --cert=/etc/etcd/etcd.crt --key=/etc/etcd/etcd.key endpoint health | grep 'is healthy'
+      register: etcd_health
+      retries: 10
+      delay: 2
+      until: etcd_health.rc == 0
+      ignore_errors: true
+
+    - name: Assert that etcd endpoint is healthy
+      ansible.builtin.assert:
+        that: etcd_health.stdout is search('is healthy')
+        fail_msg: "etcd endpoint is not healthy"
+        success_msg: "etcd endpoint is healthy"
+
+    - name: Get installed etcd version post-install
+      ansible.builtin.shell: test -f /usr/local/sbin/etcd && /usr/local/sbin/etcd --version | head -n1 | awk '{print $3}'
+      register: etcd_postinstall_version
+      ignore_errors: true
+
+    - name: Assert that target version is installed
+      ansible.builtin.assert:
+        that: etcd_postinstall_version.stdout is search(etcd_target_version)
+        fail_msg: "etcd target version is not installed"
+        success_msg: "etcd target version is installed"

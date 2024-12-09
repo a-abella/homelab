@@ -1,8 +1,6 @@
 containerd_base: /mnt/nfs/cluster/bin/containerd
 containerd_bins:
   - containerd
-  - containerd-shim
-  - containerd-shim-runc-v1
   - containerd-shim-runc-v2
   - containerd-stress
   - ctr
@@ -11,7 +9,7 @@ runc_base: /mnt/nfs/cluster/bin/runc
 runc_bins:
   - runc
 
-cri_base: /mnt/nfs/cluster/bin/kube
+cri_base: /mnt/nfs/cluster/bin/cri
 cri_bins:
   - crictl
 

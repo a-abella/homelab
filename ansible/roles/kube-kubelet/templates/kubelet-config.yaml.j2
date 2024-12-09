@@ -20,7 +20,7 @@ containerRuntimeEndpoint: "unix:///var/run/containerd/containerd.sock"
 cgroupDriver: "systemd"
 failSwapOn: false
 memorySwap:
-  swapBehavior: UnlimitedSwap
+  swapBehavior: LimitedSwap
 {% if inventory_hostname in groups.controllers -%}
 registerWithTaints:
   - key: node-roles.kubernetes.io/control-plane

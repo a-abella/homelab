@@ -1,32 +1,18 @@
 ---
 
-- name: Get current kube components version
+- name: Get target kube components version
   ansible.builtin.slurp:
     src: "{{ kube_base }}/current_version"
   register: slurp_kube_version
 
-- name: Get current helm version
-  ansible.builtin.slurp:
-    src: "{{ helm_base }}/current_version"
-  register: slurp_helm_version
-
 - name: Set kube version fact
   ansible.builtin.set_fact:
-    kube_current_version: "{{ slurp_kube_version['content'] | b64decode | trim }}"
-    helm_current_version: "{{ slurp_helm_version['content'] | b64decode | trim }}"
-
-- name: Set component installer facts
-  ansible.builtin.set_fact:
-    helm_installer_path: "{{ helm_base }}/helm-v{{ helm_current_version }}-linux-amd64.tar.gz"
-
-- name: Copy kube bins to path
-  ansible.builtin.copy:
-    remote_src: true
-    src: "{{ kube_base }}/{{ item }}-{{ kube_current_version }}"
-    dest: "/usr/local/sbin/{{ item }}"
-    mode: '0755'
-  loop: "{{ kube_bins }}"
-  notify: apiserver-restart
+    kube_target_version: "{{ slurp_kube_version['content'] | b64decode | trim }}"
+    
+- name: Get kube installed version if present
+  ansible.builtin.shell: test -f /usr/local/sbin/kube-apiserver && /usr/local/sbin/kube-apiserver --version | head -n1 | awk '{print $2}' | sed 's/^v//'
+  register: kube_installed_version
+  ignore_errors: true
 
 - name: Copy kube-apiserver unit file
   ansible.builtin.template:
@@ -71,42 +57,81 @@
   notify:
     - cp-daemon-reload
     - scheduler-restart
+    
+- name: Install kube control-plane
+  throttle: 1
+  any_errors_fatal: true
+  when: kube_installed_version.rc != 0 or kube_target_version is version(kube_installed_version.stdout_lines[0], '>', version_type='semver')
+  block:
+  
+  - name: Stop control-plane services if installed
+    ansible.builtin.systemd_service:
+      name: "{{ item }}"
+      state: stopped
+    loop:
+      - kube-apiserver
+      - kube-controller-manager
+      - kube-scheduler
+    when: kube_installed_version.rc == 0 and kube_installed_version.stdout is defined
 
-- name: Create temporary extraction location
-  ansible.builtin.file:
-    path: "/tmp/{{ item }}_unarchive"
-    state: directory
-    mode: '0755'
-  loop:
-    - helm
+  - name: Copy kube bins to path
+    ansible.builtin.copy:
+      remote_src: true
+      src: "{{ kube_base }}/{{ item }}-{{ kube_target_version }}"
+      dest: "/usr/local/sbin/{{ item }}"
+      mode: '0755'
+    loop: "{{ kube_bins }}"
+    notify:
+      - apiserver-restart
+      - controller-manager-restart
+      - scheduler-restart
 
-- name: Unarchive components
-  ansible.builtin.unarchive:
-    remote_src: true
-    src: "{{ item.installer_path }}"
-    dest: "/tmp/{{ item.component }}_unarchive"
-  loop:
-    - component: helm
-      installer_path: "{{ helm_installer_path }}"
-      current_version: "{{ helm_current_version }}"
-
-- name: Copy unarchived helm bin to path
-  ansible.builtin.copy:
-    remote_src: true
-    src: "/tmp/helm_unarchive/linux-amd64/{{ item }}"
-    dest: "/usr/local/sbin/{{ item }}"
-    mode: '0755'
-  loop: "{{ helm_bins }}"
-
-- name: Cleanup unarchive dirs
-  ansible.builtin.file:
-    path: "/tmp/{{ item }}_unarchive"
-    state: absent
-  loop:
-    - helm
-
-- name: Flush handlers
-  ansible.builtin.meta: flush_handlers
+  - name: Flush handlers
+    ansible.builtin.meta: flush_handlers
+  
+  - name: Get kube-apiserver endpoint health
+    ansible.builtin.shell: |
+      curl -k --cacert /var/lib/kubernetes/kube-api-server.crt https://127.0.0.1:6443/healthz
+    register: kube_apiserver_health
+    until: kube_apiserver_health.stdout is match('ok')
+    retries: 10
+    delay: 2
+    
+  - name: Get kube-controller-manager endpoint health
+    ansible.builtin.shell: |
+      curl -k --cacert /var/lib/kubernetes/kube-api-server.crt https://127.0.0.1:10257/healthz
+    register: kube_controller_manager_health
+    until: kube_controller_manager_health.stdout is match('ok')
+    retries: 10
+    delay: 2
+    
+  - name: Get kube-scheduler endpoint health
+    ansible.builtin.shell: |
+      curl -k --cacert /var/lib/kubernetes/kube-api-server.crt https://127.0.0.1:10259/healthz
+    register: kube_scheduler_health
+    until: kube_scheduler_health.stdout is match('ok')
+    retries: 10
+    delay: 2
+    
+  - name: Assert that all control plane endpoints are healthy
+    ansible.builtin.assert:
+      that:
+        - kube_apiserver_health.stdout is match('ok')
+        - kube_controller_manager_health.stdout is match('ok')
+        - kube_scheduler_health.stdout is match('ok')
+      fail_msg: "Control plane endpoints are not healthy"
+      success_msg: "Control plane endpoints are healthy"
+  
+  - name: Get installed kube-apiserver version post-install
+    ansible.builtin.shell: /usr/local/sbin/kube-apiserver --version | head -n1 | awk '{print $2}' | sed 's/^v//'
+    register: kube_apiserver_postinstall_version
+    ignore_errors: true
+  
+  - name: Assert that target version is installed
+    ansible.builtin.assert:
+      that: kube_apiserver_postinstall_version.stdout is search(kube_target_version)
+      fail_msg: "kube-apiserver target version is not installed"
+      success_msg: "kube-apiserver target version is installed"
 
 - name: HAProxy
   tags:

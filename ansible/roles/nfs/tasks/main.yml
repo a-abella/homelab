@@ -15,7 +15,7 @@
 
 - name: Mount NFS
   ansible.posix.mount:
-    src: media.home.lan:/media
+    src: media.home.lan:/exports/media
     path: /mnt/nfs
     opts: _netdev,nofail
     state: mounted
