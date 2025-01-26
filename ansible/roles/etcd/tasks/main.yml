@@ -5,14 +5,52 @@
     src: "{{ etcd_base }}/current_version"
   register: slurp_version
 
-- name: Get installed etcd version if present
-  ansible.builtin.shell: test -f /usr/local/sbin/etcd && /usr/local/sbin/etcd --version | head -n1 | awk '{print $3}'
-  register: etcd_installed_version
-  ignore_errors: true
+- name: Set etcd target version fact
+  ansible.builtin.set_fact:
+    etcd_target_version: "{{ slurp_version['content'] | b64decode | trim }}"
+
+- name: Update stored latest etcd version
+  when: (pull | default(false) or pull_etcd | default(false)) | bool
+  run_once: true
+  block:
+    - name: Fetch latest version
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/etcd-io/etcd/releases/latest
+        body_format: json
+        return_content: true
+      register: etcd_release
+    
+    - name: Set latest version fact
+      ansible.builtin.set_fact:
+        etcd_latest_version: "{{ etcd_release.json.name | regex_replace('^v', '') | trim }}"
+    
+    - name: Download latest version
+      ansible.builtin.get_url:
+        url: "https://github.com/etcd-io/etcd/releases/download/v{{ etcd_latest_version }}/etcd-v{{ etcd_latest_version }}-linux-amd64.tar.gz"
+        dest: "{{ etcd_base }}/etcd-v{{ etcd_latest_version }}-linux-amd64.tar.gz"
+        mode: '0755'
+      when: etcd_latest_version != etcd_target_version
+    
+    - name: Update current version
+      ansible.builtin.copy:
+        content: "{{ etcd_latest_version }}"
+        dest: "{{ etcd_base }}/current_version"
+        mode: '0644'
+      when: etcd_latest_version != etcd_target_version
+  
+- name: Get current etcd target installer version
+  ansible.builtin.slurp:
+    src: "{{ etcd_base }}/current_version"
+  register: slurp_version
 
 - name: Set etcd target version fact
   ansible.builtin.set_fact:
     etcd_target_version: "{{ slurp_version['content'] | b64decode | trim }}"
+
+- name: Get installed etcd version if present
+  ansible.builtin.shell: test -f /usr/local/sbin/etcd && /usr/local/sbin/etcd --version | head -n1 | awk '{print $3}'
+  register: etcd_installed_version
+  ignore_errors: true
 
 - name: Set etcd target installer fact
   ansible.builtin.set_fact:
