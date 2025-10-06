@@ -1,0 +1,8 @@
+nodePathMap:
+  - node: kworker02.home.lan
+    paths:
+      - /mnt/usb/localpath
+  - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
+    paths:
+      - /mnt/localpath
+

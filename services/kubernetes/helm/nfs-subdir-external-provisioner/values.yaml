@@ -1,0 +1,16 @@
+nfs:
+  mountOptions:
+  - nfsvers=4
+  - noresvport
+  - rsize=1048576
+  - wsize=1048576
+  - hard
+  - timeo=600
+  - retrans=2
+  # i like to live dangerously
+  - async
+  path: /pvs
+  server: nfs.home.lan
+storageClass:
+  archiveOnDelete: false
+  defaultClass: true

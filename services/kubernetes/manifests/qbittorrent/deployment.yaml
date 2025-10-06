@@ -1,0 +1,56 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent
+  namespace: downloaders
+  labels:
+    app: qbittorrent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qbittorrent
+  template:
+    metadata:
+      labels:
+        app: qbittorrent
+        setGateway: "true" # route traffic through pod-gateway
+    spec:
+      terminationGracePeriodSeconds: 600   # 10 minutes, matches `stop_grace_period`
+      containers:
+        - name: qbittorrent
+          image: qbittorrentofficial/qbittorrent-nox:4.5.1-1
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: PUID
+              value: "1001"
+            - name: PGID
+              value: "1001"
+            - name: TZ
+              value: "America/New_York"
+            - name: QBT_EULA
+              value: "accept"
+            - name: QBT_WEBUI_PORT
+              value: "8080"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: downloads
+              mountPath: /downloads
+            - name: tmp
+              mountPath: /tmp
+      restartPolicy: Always
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: qbittorrent-config
+        - name: downloads
+          nfs:
+            server: media.home.lan
+            path: /exports/media
+        - name: tmp
+          emptyDir:
+            medium: Memory
