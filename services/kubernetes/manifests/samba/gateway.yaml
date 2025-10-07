@@ -1,0 +1,32 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: samba-gateway
+  namespace: samba
+spec:
+  gatewayClassName: eg
+  listeners:
+    - name: tcp-samba
+      protocol: TCP
+      port: 445
+      allowedRoutes:
+        namespaces:
+          from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: samba-tcproute
+  namespace: samba
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: samba.home.lan
+spec:
+  parentRefs:
+    - name: samba-gateway
+      namespace: samba
+  rules:
+    - backendRefs:
+        - name: samba-lb
+          port: 445
+

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: samba
+  namespace: samba
+spec:
+  serviceName: samba-lb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: samba
+  template:
+    metadata:
+      labels:
+        app: samba
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/stor: ""
+      containers:
+        - name: samba
+          image: ghcr.io/servercontainers/samba:latest
+          ports:
+            - containerPort: 445
+              name: smb
+          env:
+            - name: MODEL
+              value: TimeCapsule
+            - name: AVAHI_NAME
+              value: samba
+            - name: ACCOUNT_samba
+              valueFrom:
+                secretKeyRef:
+                  name: samba-credentials
+                  key: password
+            - name: SAMBA_GLOBAL_STANZA
+              value: |
+                fruit:aapl = yes
+                fruit:nfs_aces = no
+                fruit:copyfile = no
+                fruit:model = TimeCapsule
+                multicast dns register = no
+                client max protocol = SMB3
+                client min protocol = SMB3
+                server max protocol = SMB3
+                server min protocol = SMB3
+            - name: SAMBA_VOLUME_CONFIG_timemachine
+              value: |
+                [TimeMachine];
+                vfs objects = catia fruit streams_xattr
+                comment = Time Machine Backup
+                available = yes
+                writable = yes
+                path = /shares/timemachine
+                valid users = samba
+                guest ok = no
+                browseable = yes
+                fruit:time machine = yes
+                fruit:time machine max size = 250G
+          volumeMounts:
+            - name: samba-storage
+              mountPath: /shares/timemachine
+      volumes:
+        - name: samba-storage
+          persistentVolumeClaim:
+            claimName: samba-pvc
+
