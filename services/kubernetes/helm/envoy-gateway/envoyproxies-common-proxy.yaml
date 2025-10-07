@@ -1,0 +1,52 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  annotations:
+  name: common-proxy
+  namespace: envoy-gateway-system
+spec:
+  logging:
+    level:
+      default: warn
+  mergeGateways: true
+  provider:
+    kubernetes:
+      envoyDeployment:
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              template:
+                spec:
+                  containers:
+                  - name: envoy
+                    resources:
+                      requests:
+                        cpu: 20m
+                        memory: 50Mi
+                  - name: shutdown-manager
+                    resources:
+                      requests:
+                        cpu: 5m
+                        memory: 10Mi
+                  topologySpreadConstraints:
+                  - labelSelector:
+                      matchLabelKeys:
+                      - gateway.envoyproxy.io/owning-gatewayclass
+                      matchLabels:
+                        app.kubernetes.io/component: proxy
+                        app.kubernetes.io/managed-by: envoy-gateway
+                        app.kubernetes.io/name: envoy
+                    maxSkew: 1
+                    topologyKey: kubernetes.io/hostname
+                    whenUnsatisfiable: DoNotSchedule
+        replicas: 2
+      envoyService:
+        externalTrafficPolicy: Local
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              externalTrafficPolicy: Local
+        type: LoadBalancer
+    type: Kubernetes

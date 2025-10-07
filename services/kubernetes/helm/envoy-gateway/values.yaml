@@ -1,0 +1,11 @@
+config:
+  envoyGateway:
+    extensionApis:
+      enableEnvoyPatchPolicy: true
+deployment:
+  envoyGateway:
+    resources:
+      requests:
+        cpu: 30m
+        memory: 78Mi
+  replicas: 1
