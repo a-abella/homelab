@@ -1,0 +1,36 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: podsync-gateway
+  namespace: downloaders
+spec:
+  gatewayClassName: eg
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      hostname: podsync.home.lan
+      # Allow the route to reference this listener via parentRefs
+      allowedRoutes:
+        namespaces:
+          from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: podsync-httproute
+  namespace: downloaders
+spec:
+  parentRefs:
+    - name: podsync-gateway
+  hostnames:
+    - podsync.home.lan
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: podsync-svc
+          port: 8080

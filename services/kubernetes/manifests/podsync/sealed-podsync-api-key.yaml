@@ -1,0 +1,15 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: sealed-podsync-api-key
+  namespace: downloaders
+spec:
+  encryptedData:
+    PODSYNC_YOUTUBE_API_KEY: AgALGdWDZhVrSGmp6KoCya3cDP5U3e9JKC0XuaKIwf/g7WFznpkmiPwOXT2IK16mvZpaysfdj6lqInCFjbeYF8HF9qURP2G+2XMJOL7BsB7VUv9+zRf0rMvCozNEcJuLaF6Cbm5R/FxAObxYd+zL5Gvnovfy2OJgEXf6nwleDMMeEw8BTGnv3E6QI6OlTeWUMgHZoIu7/BJ7CheRqCMrlwgr0IfzYfKpinYHO1pqTFGF4idkWv+Uv5eJVhGu6RyGw2gWECBfhcEgW2fJpNSgAMuE/l84milJR0TzqUJui2mOyQ+Y3FnINRtOWuAHQ1T42eDaunhihWAHaGFs25DS33aC4/NREnBgd2ctR2znAGo694E94arHkgPcges+5MqLRfYDaRC++Vp0eTJxLgWq6/1MW6jAsAggecaAV93IZeaPJvZsCspCW/a+KlClwRlTcaUytqql4Sq+TglZX+0kQlX1P2XqifdwxgP05sv4qDB6qU0mDytzAQDu/Ad7llHZf0sQmqWNNxcNxOkAVJLPCyoDtPGL5NrxafkNNFfwvelVZhnoB6//3eX8mk7z4HV4rtQfyWve1CFu1Op2AVeaR0puBBZ+Ot3s24Amqm7X3MwS5p+e00k92/3K43c/8SCvIfsvUW8EtJnNtxpazd9uAz49FNgipRC/gZSMDmSjNtnRC0vizxJZV2olgEyNTwHG1CK6AmNci78JrPWQEN9ipVnvefr16AwhHIWf/1+33qIbeOjoMFHbkwE=
+  template:
+    metadata:
+      creationTimestamp: null
+      name: sealed-podsync-api-key
+      namespace: downloaders

@@ -1,0 +1,28 @@
+---
+# PVC for /app/db (2Gi, ReadWriteOnce)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: podsync-db-pvc
+  namespace: downloaders
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-client
+  resources:
+    requests:
+      storage: 2Gi
+---
+# PVC for /app/data (50Gi, ReadWriteMany)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: podsync-data-pvc
+  namespace: downloaders
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-client
+  resources:
+    requests:
+      storage: 200Gi

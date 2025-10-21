@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podsync
+  namespace: downloaders
+  labels:
+    app: podsync
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: podsync
+  template:
+    metadata:
+      labels:
+        app: podsync
+        setGateway: "true" # route traffic through pod-gateway
+    spec:
+      containers:
+        - name: podsync
+          image: ghcr.io/mxpv/podsync:nightly
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: sealed-podsync-api-key
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          volumeMounts:
+            # Mount config.toml from the ConfigMap as the exact file /app/config.toml
+            - name: config-toml
+              mountPath: /app/config.toml
+              subPath: config.toml
+            # db and data mounts
+            - name: db
+              mountPath: /app/db
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: config-toml
+          configMap:
+            name: podsync-config
+            # ensure the key exists: 'config.toml' (we used that above)
+            items:
+              - key: config.toml
+                path: config.toml
+        - name: db
+          persistentVolumeClaim:
+            claimName: podsync-db-pvc
+        - name: data
+          persistentVolumeClaim:
+            claimName: podsync-data-pvc
