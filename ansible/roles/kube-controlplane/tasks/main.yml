@@ -1,12 +1,4 @@
 ---
-- name: Get target kube components version
-  ansible.builtin.slurp:
-    src: "{{ kube_base }}/current_version"
-  register: slurp_kube_version
-
-- name: Set kube version fact
-  ansible.builtin.set_fact:
-    kube_target_version: "{{ slurp_kube_version['content'] | b64decode | trim }}"
 
 - name: Update stored latest kube component version
   when: (pull | default(false) or pull_controlplane | default(false) or pull_control | default(false) or pull_cp | default(false) ) | bool
@@ -22,23 +14,31 @@
     - name: Set latest version fact
       ansible.builtin.set_fact:
         kube_latest_version: "{{ kube_release.json.tag_name | regex_replace('^v', '') | trim }}"
-
-    - name: Download latest bins
-      ansible.builtin.get_url:
-        url: "https://dl.k8s.io/v{{ kube_latest_version }}/bin/linux/amd64/{{ bin_item }}"
-        dest: "{{ kube_base }}/{{ bin_item }}-{{ kube_latest_version }}"
-        mode: '0755'
-      loop: "{{ kube_bins }}"
-      loop_control:
-        loop_var: bin_item
-      when: kube_latest_version != kube_target_version
-
+        
     - name: Update current version
       ansible.builtin.copy:
         content: "{{ kube_latest_version }}"
         dest: "{{ kube_base }}/current_version"
         mode: '0644'
-      when: kube_latest_version != kube_target_version
+
+
+- name: Get target kube components version
+  ansible.builtin.slurp:
+    src: "{{ kube_base }}/current_version"
+  register: slurp_kube_version
+
+- name: Set kube version fact
+  ansible.builtin.set_fact:
+    kube_target_version: "{{ slurp_kube_version['content'] | b64decode | trim }}"
+
+- name: Download latest bins
+  ansible.builtin.get_url:
+    url: "https://dl.k8s.io/v{{ kube_target_version }}/bin/linux/amd64/{{ bin_item }}"
+    dest: "{{ kube_base }}/{{ bin_item }}-{{ kube_target_version }}"
+    mode: '0755'
+  loop: "{{ kube_bins }}"
+  loop_control:
+    loop_var: bin_item
 
 - name: Get target kube components version
   ansible.builtin.slurp:

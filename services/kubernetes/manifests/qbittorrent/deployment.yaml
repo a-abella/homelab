@@ -20,7 +20,7 @@ spec:
       terminationGracePeriodSeconds: 600   # 10 minutes, matches `stop_grace_period`
       containers:
         - name: qbittorrent
-          image: qbittorrentofficial/qbittorrent-nox:4.5.1-1
+          image: qbittorrentofficial/qbittorrent-nox:5.1.4-1
           ports:
             - name: http
               containerPort: 8080

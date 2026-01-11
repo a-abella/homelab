@@ -20,49 +20,49 @@ data:
 
     # Configure where to store the episode data
     [storage]
-      # Could be "local" (default) for the local file system, or "s3" for a S3-compatible storage provider (e.g. AWS S3)
-      type = "local"
+        # Could be "local" (default) for the local file system, or "s3" for a S3-compatible storage provider (e.g. AWS S3)
+        type = "local"
 
-      [storage.local]
-      data_dir = "/app/data" # Don't change if you run podsync via docker
+        [storage.local]
+        data_dir = "/app/data" # Don't change if you run podsync via docker
 
     # The list of data sources to be hosted by Podsync.
     # These are channels, users, playlists, etc.
     [feeds]
 
-      ##
-      ## JENNY NICHOLSON
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.JennyNicholson]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/channel/UC7-E5xhZBZdW-8d7V80mzfg"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## JENNY NICHOLSON
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.JennyNicholson]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/channel/UC7-E5xhZBZdW-8d7V80mzfg"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 20
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "1h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
-      
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
+        
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.JennyNicholson.custom]
+        # Optional feed customizations
+        [feeds.JennyNicholson.custom]
         title = "Jenny Nicholson YT"
         description = "Listen to things you never cared about, for a long time."
         author = "Jenny Nicholson"
@@ -73,39 +73,39 @@ data:
         explicit = false
         lang = "en"
         
-      ##
-      ## ASTROGOBLIN
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.astrogoblin]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/channel/UCRb4V8WHojbGqEvzL_9g03Q"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## ASTROGOBLIN
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.astrogoblin]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/channel/UCRb4V8WHojbGqEvzL_9g03Q"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 20
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "1h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
-      
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
+        
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.astrogoblin.custom]
+        # Optional feed customizations
+        [feeds.astrogoblin.custom]
         title = "Astrogoblin YT"
         description = "Three jobless goblins in orbit above a dying earth."
         author = "Patrick Brown, Charlotte Avery, Jacob Fullterton"
@@ -117,39 +117,39 @@ data:
         lang = "en"
 
 
-      ##
-      ## FUNHAUS - Board as Hell
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.FunhausBoardAsHell]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/playlist?list=PLbIc1971kgPC2zmM3an1lcUZE6KCgWvNU"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## FUNHAUS - Board as Hell
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.FunhausBoardAsHell]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/playlist?list=PLbIc1971kgPC2zmM3an1lcUZE6KCgWvNU"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 20
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "24h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
-      
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
+        
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.FunhausBoardAsHell.custom]
+        # Optional feed customizations
+        [feeds.FunhausBoardAsHell.custom]
         title = "Funhaus - Board as Hell"
         description = "The future unemployed play board games."
         author = "James Willems"
@@ -161,39 +161,39 @@ data:
         lang = "en"
 
 
-      ##
-      ## FUNHAUS - Must Be Dice
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.FunhausMustBeDice]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/playlist?list=PLNmCpLLSK270u97rD-sWYISd3l0o9qvWI"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## FUNHAUS - Must Be Dice
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.FunhausMustBeDice]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/playlist?list=PLNmCpLLSK270u97rD-sWYISd3l0o9qvWI"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 20
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "24h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
-      
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
+        
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.FunhausMustBeDice.custom]
+        # Optional feed customizations
+        [feeds.FunhausMustBeDice.custom]
         title = "Funhaus - Must Be Dice"
         description = "Improv comedy and dragons."
         author = "Daniel Schneider"
@@ -204,39 +204,39 @@ data:
         explicit = true
         lang = "en"
         
-      ##
-      ## FUNHAUS - Deadly Premonition
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.FunhausDeadlyPremonition]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/playlist?list=PLbIc1971kgPBFGWn5FZ5pkAyQfQAfGsQe"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## FUNHAUS - Deadly Premonition
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.FunhausDeadlyPremonition]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/playlist?list=PLbIc1971kgPBFGWn5FZ5pkAyQfQAfGsQe"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 35
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "24h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
 
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.FunhausDeadlyPremonition.custom]
+        # Optional feed customizations
+        [feeds.FunhausDeadlyPremonition.custom]
         title = "Funhaus - Deadly Premonition"
         description = "Australia and a juggalo play a video game."
         author = "Alanah Pearce, Ryan Hailey"
@@ -248,39 +248,39 @@ data:
         lang = "en"
         
         
-      ##
-      ## RedLetterMedia - Best of the Worst
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.RLMBestOfTheWorst]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/playlist?list=PLJ_TJFLc25JR3VZ7Xe-cmt4k3bMKBZ5Tm"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## RedLetterMedia - Best of the Worst
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.RLMBestOfTheWorst]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/playlist?list=PLJ_TJFLc25JR3VZ7Xe-cmt4k3bMKBZ5Tm"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 20
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "1h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
 
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.RLMBestOfTheWorst.custom]
+        # Optional feed customizations
+        [feeds.RLMBestOfTheWorst.custom]
         title = "RedLetterMedia - Best of the Worst"
         description = "Bad movie fun time."
         author = "Mike Stoklasa, Jay Bauman, Rich Evans"
@@ -291,39 +291,39 @@ data:
         explicit = true
         lang = "en"
         
-      ##
-      ## RedLetterMedia - re:View
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.RLMReview]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/playlist?list=PLJ_TJFLc25JSmtBkyIYqgD5KabbU57yzY"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## RedLetterMedia - re:View
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.RLMReview]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/playlist?list=PLJ_TJFLc25JSmtBkyIYqgD5KabbU57yzY"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 20
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "1h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
-      
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
+        
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.RLMReview.custom]
+        # Optional feed customizations
+        [feeds.RLMReview.custom]
         title = "RedLetterMedia - re:View"
         description = "Dive deep on a thing."
         author = "Mike Stoklasa, Jay Bauman"
@@ -334,39 +334,39 @@ data:
         explicit = true
         lang = "en"
         
-      ##
-      ## RedLetterMedia - Beyond the Black Void
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.RLMBeyondTheBlackVoid]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/playlist?list=PLJ_TJFLc25JRdChhr9sp00ajl7FAeKDx-"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## RedLetterMedia - Beyond the Black Void
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.RLMBeyondTheBlackVoid]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/playlist?list=PLJ_TJFLc25JRdChhr9sp00ajl7FAeKDx-"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 20
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "1h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
 
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.RLMBeyondTheBlackVoid.custom]
+        # Optional feed customizations
+        [feeds.RLMBeyondTheBlackVoid.custom]
         title = "RedLetterMedia - Beyond the Black Void"
         description = "Talking about mostly nothing."
         author = "Mike Stoklasa, Jay Bauman, Rich Evans"
@@ -377,39 +377,39 @@ data:
         explicit = true
         lang = "en"
         
-      ##
-      ## RedLetterMedia - Trivia
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.RLMTrivia]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/playlist?list=PLJ_TJFLc25JT7feErb5uvWZ2iBlCZuPWJ"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## RedLetterMedia - Trivia
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.RLMTrivia]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/playlist?list=PLJ_TJFLc25JT7feErb5uvWZ2iBlCZuPWJ"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 20
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "1h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
-      
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
+        
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.RLMTrivia.custom]
+        # Optional feed customizations
+        [feeds.RLMTrivia.custom]
         title = "RedLetterMedia - Trivia"
         description = "The boys got bored I guess."
         author = "Mike Stoklasa, Jay Bauman, Rich Evans"
@@ -421,39 +421,39 @@ data:
         lang = "en"
 
 
-      ##
-      ## Mr Plinkett - Star Wars Reviews
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.PlinkettStarWarsReviews]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/playlist?list=PLNmCpLLSK270KxTN6LMsfdCQRzft_HXUC"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## Mr Plinkett - Star Wars Reviews
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.PlinkettStarWarsReviews]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/playlist?list=PLNmCpLLSK270KxTN6LMsfdCQRzft_HXUC"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 20
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "24h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
-      
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
+        
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.PlinkettStarWarsReviews.custom]
+        # Optional feed customizations
+        [feeds.PlinkettStarWarsReviews.custom]
         title = "Mr Plinkett - Star Wars Reviews"
         description = "Mr. Plinkett performs an autopsy on Star Wars content."
         author = "Harry S. Plinkett"
@@ -465,39 +465,39 @@ data:
         lang = "en"
 
 
-      ##
-      ## Kings and Generals - Alexander the Great
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.KingsAndGeneralsAlexanderTheGreat]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/playlist?list=PLaBYW76inbX5gW1dT5HvFcKUkrG5hvJPF"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## Kings and Generals - Alexander the Great
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.KingsAndGeneralsAlexanderTheGreat]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/playlist?list=PLaBYW76inbX5gW1dT5HvFcKUkrG5hvJPF"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 50
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "24h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
-      
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
+        
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.KingsAndGeneralsAlexanderTheGreat.custom]
+        # Optional feed customizations
+        [feeds.KingsAndGeneralsAlexanderTheGreat.custom]
         title = "Kings and Generals - Alexander the Great"
         description = "A comprehensive series on the life and campaigns of Alexander the Great."
         author = "Kings and Generals"
@@ -508,39 +508,39 @@ data:
         explicit = false
         lang = "en"
         
-      ##
-      ## Kings and Generals - Caesar and Octavian
-      ##
-      # Each channel must have a unique identifier (in this example "ID1").
-      [feeds.KingsAndGeneralsCaesarAndAugustus]
-      # URL address of a channel, group, user, or playlist.
-      url = "https://www.youtube.com/playlist?list=PLaBYW76inbX5qAsT-6CFBCnJKiIxGst69"
-      # The number of episodes to query each update (keep in mind, that this might drain API token)
-      page_size = 50
-      # How often query for updates, examples: "60m", "4h", "2h45m"
-      update_period = "1h"
-      quality = "low" # "high" or "low"
-      format = "custom" # "audio", "video" or "custom"
-      # When format = "custom"
-      # YouTubeDL format parameter and result file extension
-      custom_format = { youtube_dl_format = "worstaudio[ext=m4a][format_note*=original]", extension = "m4a" }
-      playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
-      # Optionally include this feed in OPML file (default value: false)
-      opml = true
-      # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
-      private_feed = true
+        ##
+        ## Kings and Generals - Caesar and Octavian
+        ##
+        # Each channel must have a unique identifier (in this example "ID1").
+        [feeds.KingsAndGeneralsCaesarAndAugustus]
+        # URL address of a channel, group, user, or playlist.
+        url = "https://www.youtube.com/playlist?list=PLaBYW76inbX5qAsT-6CFBCnJKiIxGst69"
+        # The number of episodes to query each update (keep in mind, that this might drain API token)
+        page_size = 50
+        # How often query for updates, examples: "60m", "4h", "2h45m"
+        update_period = "24h"
+        quality = "low" # "high" or "low"
+        format = "custom" # "audio", "video" or "custom"
+        # When format = "custom"
+        # YouTubeDL format parameter and result file extension
+        custom_format = { youtube_dl_format = "ba[ext=m4a][format_note~='(?i)original'] / (ba[ext=m4a]/ba)", extension = "m4a" }
+        playlist_sort = "asc" # or "desc", which will fetch playlist items from the end
+        # Optionally include this feed in OPML file (default value: false)
+        opml = true
+        # When set to true, podcasts indexers such as iTunes or Google Podcasts will not index this podcast
+        private_feed = true
 
-      # Optional Golang regexp format.
-      # If set, then only download matching episodes.
-      # Duration filters are in seconds.
-      # max_age filter is in days.
-      # min_age filter is in days.
-      
-      # exclude shorts
-      filters = { min_duration = 300 }
+        # Optional Golang regexp format.
+        # If set, then only download matching episodes.
+        # Duration filters are in seconds.
+        # max_age filter is in days.
+        # min_age filter is in days.
+        
+        # exclude shorts
+        filters = { min_duration = 300 }
 
-      # Optional feed customizations
-      [feeds.KingsAndGeneralsCaesarAndAugustus.custom]
+        # Optional feed customizations
+        [feeds.KingsAndGeneralsCaesarAndAugustus.custom]
         title = "Kings and Generals - Caesar and Augustus"
         description = "A comprehensive series on the life and campaigns of Julius Caesar and Augustus."
         author = "Kings and Generals"
@@ -557,7 +557,7 @@ data:
     # This section is optional and usually not needed to configure unless some very specific corner cases.
     # Refer to https://dgraph.io/docs/badger/get-started/#memory-usage for documentation.
     [database]
-      badger = { truncate = true, file_io = true }
+        badger = { truncate = true, file_io = true }
 
     # Youtube-dl specific configuration.
     [downloader]
