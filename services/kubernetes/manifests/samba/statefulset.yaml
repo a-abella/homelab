@@ -55,12 +55,13 @@ spec:
                 guest ok = no
                 browseable = yes
                 fruit:time machine = yes
-                fruit:time machine max size = 250G
+                fruit:time machine max size = 639G
           volumeMounts:
             - name: samba-storage
               mountPath: /shares/timemachine
       volumes:
         - name: samba-storage
-          persistentVolumeClaim:
-            claimName: samba-pvc
+          hostPath:
+            path: /mnt/timemachine
+            type: DirectoryOrCreate
 

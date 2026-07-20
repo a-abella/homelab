@@ -27,9 +27,9 @@ spec:
                 secretKeyRef:
                   key: password
                   name: librespeed-password
-          image: ghcr.io/librespeed/speedtest:5.3.3
+          image: ghcr.io/librespeed/speedtest:6.1.0
           name: librespeed
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               protocol: TCP
       restartPolicy: Always

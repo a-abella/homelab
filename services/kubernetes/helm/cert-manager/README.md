@@ -1,5 +1,5 @@
 
 ## helm
 ```
-helm upgrade --install cert-manager --namespace cert-manager --version v1.18.2 jetstack/cert-manager --atomic --timeout 5m
+helm upgrade --install cert-manager --namespace cert-manager --create-namespace --version v1.21.0 jetstack/cert-manager --wait --rollback-on-failure --timeout 5m
 ```

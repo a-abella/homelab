@@ -1,0 +1,11 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default-address-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - 192.168.0.88/32   # for external kube-api for kubectl
+    - 192.168.0.192/26  #.193 - .254
+  autoAssign: true
+  avoidBuggyIPs: true

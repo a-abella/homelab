@@ -4,7 +4,7 @@ metadata:
   name: librespeed-gateway
   namespace: librespeed
 spec:
-  gatewayClassName: cilium
+  gatewayClassName: eg
   listeners:
   - name: http
     port: 80
